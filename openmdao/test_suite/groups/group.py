@@ -12,14 +12,20 @@ class TestGroupFlat(Group):
     """Test group flat, with only 1 level of hierarchy."""
 
     def initialize(self):
-        self.metadata.declare('num_sub', typ=int, value=2)
-        self.metadata.declare('num_var', typ=int, value=2)
-        self.metadata.declare('var_shape', value=(1,))
+        self.metadata.declare('num_sub', typ=int, value=2,
+                              desc='total number of components')
+        self.metadata.declare('num_var', typ=int, value=2,
+                              desc='number of output variables per component')
+        self.metadata.declare('var_shape', value=(1,),
+                              desc='input/output variable shapes')
         self.metadata.declare('connection_type', typ=str, value='explicit',
-                              values=['explicit', 'implicit'])
-        self.metadata.declare('Component')
+                              values=['explicit', 'implicit'],
+                              desc='how to connect variables')
+        self.metadata.declare('Component',
+                              desc='Component class to instantiate')
         self.metadata.declare('derivatives', value='matvec',
-                              values=['matvec', 'dense', 'sparse-coo'])
+                              values=['matvec', 'dense', 'sparse-coo'],
+                              desc='method of assembling derivatives')
 
         num_sub = self.metadata['num_sub']
         num_var = self.metadata['num_var']
