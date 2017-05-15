@@ -378,6 +378,10 @@ class TestJacobianFeatures(unittest.TestCase):
                 self.add_output('z', shape=(3,))
                 self.add_input('x', shape=(3,), units='degF')
 
+            def compute(self, inputs, outputs):
+                outputs['y'] = self.A.dot(inputs['x'])
+                outputs['z'] = self.A.dot(inputs['x'])
+
             def compute_partial_derivs(self, inputs, outputs, partials):
                 partials['y', 'x'] = self.A
                 partials['z', 'x'] = self.A
@@ -391,7 +395,13 @@ class TestJacobianFeatures(unittest.TestCase):
         model.add_subsystem('comp', TmpComp(), promotes=['*'])
 
         p.setup()
+
         p.run_model()
+        partials = p.check_partial_derivs()
+        assert_rel_error(self, partials['comp']['z', 'x']['rel error'].forward, 0., 1e-8)
+
+        assert_rel_error(self, model.get_subsystem('comp').A, np.ones((3, 3)))
+
         totals = p.compute_total_derivs(['y', 'z'], ['x'])
         expected_totals = {
             ('y', 'x'): 9/5 * np.ones((3, 3)),
